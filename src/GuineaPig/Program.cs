@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Events;
 
-namespace IaC.WS5.GuineaPig
+namespace IaC.aks101.GuineaPig
 {
-    public class Program
+    public static class Program
     {
         public static void Main(string[] args)
         {

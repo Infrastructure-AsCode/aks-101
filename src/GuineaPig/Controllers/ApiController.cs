@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Prometheus;
 
-namespace IaC.WS5.GuineaPig.Controllers
+namespace IaC.aks101.GuineaPig.Controllers
 {
     [ApiController]
     [Route("[controller]")]
@@ -21,28 +19,14 @@ namespace IaC.WS5.GuineaPig.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            var message = "[guinea-pig] - OK.";
+            var message = "[api] - OK.";
             _logger.LogInformation(message);
             return Ok(message);
         }
 
-        private static readonly Counter FailedHighCpuCalls = Metrics
-            .CreateCounter("guinea_pig_highcpu_failed_total", "Number of highcpu operations that failed.");
-        
-        private readonly Random _random = new Random();
-        
         [HttpGet("highcpu")]
         public IActionResult HighCpu()
         {
-            return FailedHighCpuCalls.CountExceptions(ExecuteHighCpu);
-        }
-
-        private IActionResult ExecuteHighCpu()
-        {
-            var random = _random.Next(0, 100);
-            if (random < 10) throw new Exception("[guinea-pig: random exception]");
-            if (random > 10 & random < 30) return NotFound("not found");
-            
             var sw = Stopwatch.StartNew();
             var x = 0.0001;
 
@@ -51,20 +35,9 @@ namespace IaC.WS5.GuineaPig.Controllers
                 x += Math.Sqrt(x);
             }
             sw.Stop();
-            _logger.LogInformation("[guinea-pig.highcpu] - execution took {ElapsedMilliseconds} ms", sw.ElapsedMilliseconds);
-            return Ok();
+            var message = $"[api.highcpu] - execution took {sw.ElapsedMilliseconds} ms.";
+            _logger.LogInformation(message);
+            return Ok(message);
         }
-        
-        [HttpGet("highmemory")]
-        public IActionResult HighMemory()
-        {
-            var sw = Stopwatch.StartNew();
-            var numberOfBytes = 1073741824;
-            Marshal.AllocHGlobal(numberOfBytes);
-            sw.Stop();
-            _logger.LogInformation("[guinea-pig.highmemory] - execution took {ElapsedMilliseconds} ms", sw.ElapsedMilliseconds);
-            return Ok("highmemory");
-        }
-
     }
 }

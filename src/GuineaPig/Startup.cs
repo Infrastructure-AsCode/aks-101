@@ -3,15 +3,14 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
-using Prometheus;
 
-namespace IaC.WS5.GuineaPig
+namespace IaC.aks101.GuineaPig
 {
     public class Startup
     {
         public Startup(IConfiguration configuration)
         {
+            Timekeeper.Start();
             Configuration = configuration;
         }
 
@@ -21,10 +20,6 @@ namespace IaC.WS5.GuineaPig
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "guinea-pig", Version = "v1" });
-            });
             services.AddApplicationInsightsTelemetry();
         }
 
@@ -34,20 +29,16 @@ namespace IaC.WS5.GuineaPig
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "guinea-pig v1"));
             }
 
             app.UseHttpsRedirection();
 
             app.UseRouting();
-            app.UseHttpMetrics();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapMetrics();
             });
         }
     }
