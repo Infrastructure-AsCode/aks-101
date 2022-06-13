@@ -2,7 +2,7 @@
 .SYNOPSIS
     ...
 .EXAMPLE
-./Cleanup-Environment.ps1 -WorkloadName eratews-user -InstanceCount 2
+./Cleanup-Environment.ps1 -WorkloadName eratews -InstanceCount 2
 #>
 param (
     [Parameter(Mandatory = $true)]
@@ -11,10 +11,10 @@ param (
     [int] $InstanceCount
 )
 
-for ($i = 3; $i -le $InstanceCount; $i++) {
-    $userName = "$workloadName$i"
+for ($i = 1; $i -le $InstanceCount; $i++) {
+    $userName = "$workloadName-user$i"
     $principalName = "$userName@iac-labs.com"
-    $rgName = "$workloadName$i-rg"
+    $rgName = "$workloadName-rg-$i"
 
     Write-Host "Deleting resource group $rgName..."
     az group delete -n $rgName -y   

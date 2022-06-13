@@ -1,9 +1,10 @@
-param prefix string
+param workloadName string
+param instanceId int
 param location string
 
-var prefixForACR = replace(prefix, '-', '')
-var uniqueStr = uniqueString(subscription().subscriptionId, resourceGroup().id)
-var acrName = '${prefixForACR}${uniqueStr}acr'
+var prefixForACR = replace(workloadName, '-', '')
+var uniqueStr = uniqueString(subscription().subscriptionId)
+var acrName = '${prefixForACR}${uniqueStr}acr${instanceId}'
 
 resource acr 'Microsoft.ContainerRegistry/registries@2020-11-01-preview' = {
   name: acrName

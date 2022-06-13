@@ -1,8 +1,9 @@
-param prefix string
+param workloadName string
+param instanceId int
 param location string
 
-var uniqueStr = uniqueString(subscription().subscriptionId, resourceGroup().id)
-var sbName = '${prefix}-${uniqueStr}-sbns'
+var uniqueStr = uniqueString(subscription().subscriptionId)
+var sbName = '${workloadName}-${uniqueStr}-sbns-${instanceId}'
 
 resource sb 'Microsoft.ServiceBus/namespaces@2021-06-01-preview' = {
   name: sbName

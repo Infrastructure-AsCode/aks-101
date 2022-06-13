@@ -3,11 +3,10 @@ param workloadName string
 param instanceId int
 param location string = 'westeurope'
 
-var prefix = '${workloadName}${instanceId}'
 var vnetAddressPrefix = '10.${instanceId}.0.0/16'
 var aksSubnetAddressPrefix = '10.${instanceId}.0.0/23'
 
-var resourceGroupName = '${prefix}-rg'
+var resourceGroupName = '${workloadName}-rg-${instanceId}'
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: resourceGroupName
@@ -18,7 +17,8 @@ module appInsights 'appInsights.bicep' = {
   scope: resourceGroup
   name: 'appInsights'
   params: {
-    prefix: prefix
+    workloadName: workloadName
+    instanceId: instanceId
     location: location
   }
 }
@@ -26,7 +26,8 @@ module acr 'acr.bicep' = {
   scope: resourceGroup
   name: 'acr'
   params: {
-    prefix: prefix
+    workloadName: workloadName
+    instanceId: instanceId
     location: location
   }
 }
@@ -35,7 +36,8 @@ module logAnalytics 'logAnalytics.bicep' = {
   scope: resourceGroup
   name: 'logAnalytics'
   params: {
-    prefix: prefix
+    workloadName: workloadName
+    instanceId: instanceId
     location: location
   }
 }
@@ -44,7 +46,8 @@ module vnet 'vnet.bicep' = {
   scope: resourceGroup
   name: 'vnet'
   params: {
-    prefix: prefix
+    workloadName: workloadName
+    instanceId: instanceId
     location: location
     vnetAddressPrefix: vnetAddressPrefix
     aksSubnetAddressPrefix: aksSubnetAddressPrefix
@@ -55,7 +58,8 @@ module aks 'aks.bicep' = {
   scope: resourceGroup
   name: 'aks'
   params: {
-    prefix: prefix
+    workloadName: workloadName
+    instanceId: instanceId
     location: location
     aksSubnetId: vnet.outputs.aksSubnetId
     logAnalyticsWorkspaceId: logAnalytics.outputs.logAnalyticsWorkspaceId
@@ -84,7 +88,8 @@ module asb 'sb.bicep' = {
   scope: resourceGroup
   name: 'asb'
   params: {
-    prefix: prefix
+    workloadName: workloadName
+    instanceId: instanceId
     location: location
   }
 }

@@ -1,8 +1,9 @@
-param prefix string
+param workloadName string
+param instanceId int
 param location string
 
 var uniqueStr = uniqueString(subscription().subscriptionId, resourceGroup().id)
-var logAnalyticsWorkspaceName = '${prefix}-${uniqueStr}-la'
+var logAnalyticsWorkspaceName = '${workloadName}-${uniqueStr}-la-${instanceId}'
 
 var logAnalyticsRetentionInDays = 60
 

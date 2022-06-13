@@ -1,10 +1,11 @@
-param prefix string
+param workloadName string
+param instanceId int
 param logAnalyticsWorkspaceId string 
 param aksSubnetId string
 param location string
 
-var aksMIName = '${prefix}-aks-mi' 
-var aksName = '${prefix}-aks'
+var aksMIName = '${workloadName}-aks-mi-${instanceId}' 
+var aksName = '${workloadName}-aks-${instanceId}'
 
 resource aksMI 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
   name: aksMIName
