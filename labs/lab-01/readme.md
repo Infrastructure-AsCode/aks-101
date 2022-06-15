@@ -25,8 +25,11 @@ If you forget how to connect to the cluster, you can always find it at the porta
 ![aks-connect-from-portal](images/aks-connect-from-portal.png)
 
 ```bash
+# Set your user ID
+export WS_USER_ID=<YOUR_ID>
+
 # Get access credentials for AKS
-az aks get-credentials --resource-group eratews-rg-<YOUR_ID> --name eratews-aks-<YOUR_ID>
+az aks get-credentials --resource-group eratews-rg-$WS_USER_ID --name eratews-aks-$WS_USER_ID
 ```
 
 ## Task #2 - install kubectl

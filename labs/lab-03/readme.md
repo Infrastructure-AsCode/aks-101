@@ -77,17 +77,20 @@ CONTAINER ID   IMAGE              COMMAND                  CREATED         STATU
 Push the Image to ACR
 
 ```bash
+# Set you user id
+export WS_USER_ID=<YOUR_ID>
+
 # login to ACR
-az acr login --name eratewsznjnxaunsoy42acr<YOUR_ID>
+az acr login --name eratewsznjnxaunsoy42acr$WS_USER_ID
 Login Succeeded
 
 # Use docker tag to create an alias of the image with the fully qualified path to your ACR registry.
-docker tag guinea-pig:1.0.0 eratewsznjnxaunsoy42acr<YOUR_ID>.azurecr.io/guinea-pig:1.0.0
+docker tag guinea-pig:1.0.0 eratewsznjnxaunsoy42acr$WS_USER_ID.azurecr.io/guinea-pig:1.0.0
 
 # Now that you've tagged the image with the fully qualified path to your private registry, you can push it to the registry with docker push
-docker push eratewsznjnxaunsoy42acr<YOUR_ID>.azurecr.io/guinea-pig:1.0.0
+docker push eratewsznjnxaunsoy42acr$WS_USER_ID.azurecr.io/guinea-pig:1.0.0
 ```
-If command runs successful, navigate to Azure portal and search for your ACR (eratewsznjnxaunsoy42acr<YOUR_ID>). You can use search at the top of the portal 
+If command runs successful, navigate to Azure portal and search for your ACR (eratewsznjnxaunsoy42acr$WS_USER_ID). You can use search at the top of the portal 
 
 ![search-acr](images/portal-acr-1.png)
 
@@ -107,7 +110,7 @@ Another way to build and push your images is by using [az acr build](https://doc
 
 ```bash
 # Build and push app to ACR
-az acr build --registry eratewsznjnxaunsoy42acr<YOUR_ID> --image guinea-pig:v1 --file Dockerfile ..
+az acr build --registry eratewsznjnxaunsoy42acr$WS_USER_ID --image guinea-pig:v1 --file Dockerfile ..
 ```
 If command runs successful, check the ACR at the Azure portal. Now `guinea-pig` repository should have 2 tags of the `guinea-pig` image.
 
