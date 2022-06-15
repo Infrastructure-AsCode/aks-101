@@ -21,23 +21,23 @@ or
 
 * Download and install [Docker for Mac](https://www.docker.com/products/docker-desktop/)
 
-## Task #1 - get and build application
+## Task #1 - get and build test application
 
-First, clone repository with application code to your PC. You can either clone it, or fork it out and then clone.
+First, clone repository with application code to your PC. 
 
 ```bash
 # Get application code using ssh
 git@github.com:Infrastructure-AsCode/aks-101.git
 ```
 
-If you experiencing some issues with `ssh`, try to clone using `https`.
+If you experiencing issues with `ssh`, try to clone it using `https`.
 
 ```bash
 # Get application code using https 
 https://github.com/Infrastructure-AsCode/aks-101.git
 ```
 
-Test application is located under `src\` folder. You can use Visual Studio Community edition, Rider or Visual Studio Code as an IDE to work with dotnet code.
+Test application is located under `src\` folder. You can use Visual Studio, Rider or Visual Studio Code as an IDE to work with dotnet code.
 
 Navigate to the `src` folder and build it using `dotnet` cli.
 
@@ -45,6 +45,8 @@ Navigate to the `src` folder and build it using `dotnet` cli.
 # Build app
 dotnet build app.sln
 ```
+
+It should compile without any errors.
 
 ## Task #2 - build and publish image with Docker command
 

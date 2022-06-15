@@ -12,8 +12,6 @@ namespace IaC.aks101.GuineaPig
         {
             Log.Logger = new LoggerConfiguration()
                .Enrich.FromLogContext()
-               .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
-               .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
                .WriteTo.Console()
                .CreateLogger();
             try
