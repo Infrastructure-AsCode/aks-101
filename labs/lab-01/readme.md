@@ -97,7 +97,3 @@ tigera-operator   Active   2d
 ## Next: setting up your shell for better AKS/kubectl experience
 
 [Go to lab-02](../lab-02/readme.md)
-
-## Feedback
-
-* Visit the [Github Issue](https://github.com/evgenyb/aks-workshops/issues/2) to comment on this lab. 

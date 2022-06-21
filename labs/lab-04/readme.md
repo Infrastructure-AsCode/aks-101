@@ -319,7 +319,3 @@ pod "guinea-pig-2" deleted
 ## Next: Readiness and Liveness probes
 
 [Go to lab-05](../lab-05/readme.md)
-
-## Feedback
-
-* Visit the [Github Issue](https://github.com/evgenyb/aks-workshops/issues/5) to comment on this lab. 
