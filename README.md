@@ -18,20 +18,20 @@ This workshop covers the basics of using Kubernetes and here is the agenda:
  * [Lab-04](labs/lab-04/readme.md): Creating, managing and testing pods
  * Lab-05: Working with namespaces
  * Slides: Kubernetes Resource Management
- * Lab-06: Working with Kubernetes Resource Management
+ * [Lab-06](labs/lab-06/readme.md): Working with Kubernetes Resource Management
  * Slides: Readiness and Liveness probes
- * Lab-07: Configuring Readiness and Liveness probes
+ * [Lab-07](labs/lab-07/readme.md): Configuring Readiness and Liveness probes
  * Slides: Kubernetes Deployments
- * Lab-08: Deployments
+ * [Lab-08](labs/lab-08/readme.md): Deployments
  * Slides: Services, Labels, Selectors
- * Lab-09: Creating and Managing Services
+ * [Lab-09](labs/lab-09/readme.md): Creating and Managing Services
  * Slides: ConfigMaps and secrets
- * Lab-10: Working with ConfigMaps and secrets
+ * [Lab-10](labs/lab-10/readme.md): Working with ConfigMaps and secrets
  * Slides: Kubernetes Ingress 
- * Lab-11: configuring ingress with nginx
+ * [Lab-11](labs/lab-11/readme.md): configuring ingress with nginx
  * Slides: Scaling options in Kubernetes
- * Lab-12: manually scale applications in AKS
- * Lab-13: use Horizontal Pod Autoscaling (HPA) to automatically scale applications
+ * [Lab-12](labs/lab-12/readme.md): scale applications manually
+ * [Lab-13](labs/lab-13/readme.md): use Horizontal Pod Autoscaling (HPA) to automatically scale applications
  * Slides: Kubernetes Event-driven Autoscaling KEDA 
  * Slides: GitOps with Flux (optional)
 

@@ -170,7 +170,7 @@ metadata:
   name: guinea-pig-2
 spec:
   containers:
-  - name: guinea-pig-2
+  - name: api
     image: eratewsznjnxaunsoy42acr<YOUR_ID>.azurecr.io/guinea-pig:v1
     resources: {}
 ```
