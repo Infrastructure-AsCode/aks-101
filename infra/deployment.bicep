@@ -1,16 +1,22 @@
 targetScope = 'subscription'
 param workloadName string
 param instanceId int
+param sharedAcrName string
 param location string = 'westeurope'
 
 var vnetAddressPrefix = '10.${instanceId}.0.0/16'
 var aksSubnetAddressPrefix = '10.${instanceId}.0.0/23'
 
 var resourceGroupName = '${workloadName}-rg-${instanceId}'
+var sharedResourceGroupName = '${workloadName}-rg'
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: resourceGroupName
   location: location
+}
+
+resource sharedResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
+  name: sharedResourceGroupName
 }
 
 module appInsights 'appInsights.bicep' = {
@@ -84,12 +90,11 @@ module acrToAks 'attachACRToAKS.bicep' = {
   }
 }
 
-module asb 'sb.bicep' = {
-  scope: resourceGroup
-  name: 'asb'
+module sharedAcrToAks 'attachACRToAKS.bicep' = {
+  scope: sharedResourceGroup
+  name: 'sharedAcrToAks'
   params: {
-    workloadName: workloadName
-    instanceId: instanceId
-    location: location
+    acrName: sharedAcrName    
+    aksKubeletIdentityObjectId: aks.outputs.aksKubeletIdentityObjectId
   }
 }

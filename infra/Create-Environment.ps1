@@ -13,6 +13,9 @@ param (
     [int] $InstanceCount
 )
 
+Write-Host "Provisioning shared resources"
+$sharedAcrName = (az deployment sub create --location westeurope --template-file ./deploymentShared.bicep  --parameters workloadName=$workloadName --query properties.outputs.acrName.value)
+
 for ($i = 1; $i -le $InstanceCount; $i++) {
     $userName = "$workloadName-user$i"
     $principalName = "$userName@iac-labs.com"
@@ -21,7 +24,7 @@ for ($i = 1; $i -le $InstanceCount; $i++) {
     az ad user create --display-name $userName --password "$PwdBase$i" --user-principal-name $principalName --force-change-password-next-sign-in false
     
     Write-Host "Provisioning AKS instance $i "
-    az deployment sub create --location westeurope --template-file ./deployment.bicep  --parameters workloadName=$workloadName instanceId=$i   
+    az deployment sub create --location westeurope --template-file ./deployment.bicep  --parameters workloadName=$workloadName instanceId=$i sharedAcrName=$sharedAcrName
 
     $rgId = (az group show -n $workloadName-rg-$i --query id)
     Write-Host "Assign Contributor role to $principalName at $rdId scope"

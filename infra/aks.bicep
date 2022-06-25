@@ -24,7 +24,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2021-05-01' = {
   properties: {
     dnsPrefix: aksName
     enableRBAC: true    
-    kubernetesVersion: '1.23.5'
+    kubernetesVersion: '1.23.5'    
     agentPoolProfiles: [
       {
         name: 'system'
@@ -41,6 +41,19 @@ resource aks 'Microsoft.ContainerService/managedClusters@2021-05-01' = {
       loadBalancerSku: 'standard'
       networkPolicy: 'calico'
     }
+    podIdentityProfile: {
+      enabled: true
+      userAssignedIdentities: []
+      userAssignedIdentityExceptions: [
+        {
+          name: 'flux-extension-exception'
+          namespace: 'flux-system'
+          podLabels: {
+            'app.kubernetes.io/name': 'flux-extension'
+          }
+        }
+      ]
+    }
     addonProfiles: {
       omsagent: {
         enabled: true
@@ -51,6 +64,60 @@ resource aks 'Microsoft.ContainerService/managedClusters@2021-05-01' = {
     }
   }
 }
+
+
+resource fluxExtension 'Microsoft.KubernetesConfiguration/extensions@2022-04-02-preview' = {
+  name: 'flux'
+  scope: aks
+  properties: {
+    autoUpgradeMinorVersion: true
+    configurationProtectedSettings: {}
+    configurationSettings: {
+      'helm-controller.enabled': 'true'
+      'source-controller.enabled': 'true'
+      'kustomize-controller.enabled': 'true'
+      'notification-controller.enabled': 'true'
+      'image-automation-controller.enabled': 'true'
+      'image-reflector-controller.enabled': 'true'
+    }
+    extensionType: 'microsoft.flux'
+    releaseTrain: 'Stable'
+    scope: {
+      cluster: {
+        releaseNamespace: 'flux-system'
+      }
+    }
+  }
+}
+
+resource fluxConfiguration 'Microsoft.KubernetesConfiguration/fluxConfigurations@2022-01-01-preview' = {
+  name: 'bicep-fluxconfig'
+  scope: aks
+  properties: {
+    namespace: 'cluster-config'
+    scope: 'cluster'
+    sourceKind: 'GitRepository'
+    configurationProtectedSettings: {}
+    gitRepository: {
+      repositoryRef: {
+        branch: 'main'
+      }
+      syncIntervalInSeconds: 120
+      timeoutInSeconds: 600
+      url: 'https://github.com/evgenyb/gitops-flux2-kustomize.git'
+    }
+    kustomizations: {      
+      'infra': {
+        path: './infrastructure'
+        syncIntervalInSeconds: 120
+      }
+    }
+  }
+  dependsOn: [
+    fluxExtension
+  ]
+}
+
 
 output aksKubeletIdentityObjectId string = aks.properties.identityProfile.kubeletidentity.objectId
 output aksMIPrincipalId string = aksMI.properties.principalId

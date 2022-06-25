@@ -48,9 +48,6 @@ At the left-hand session, run all commands from the labs.
 Now that we published several versions of out application images into ACR, and our AKS cluster is integrated with ACR, we can run our application inside the AKS
 
 ```bash
-# Set your user ID
-export WS_USER_ID=<YOUR_ID>
-
 # Run pod guinea-pig
 kubectl run guinea-pig --image eratewsznjnxaunsoy42acr$WS_USER_ID.azurecr.io/guinea-pig:v1
 pod/guinea-pig created

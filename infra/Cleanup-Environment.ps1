@@ -22,3 +22,6 @@ for ($i = 1; $i -le $InstanceCount; $i++) {
     Write-Host "Deleting AD user $userName..."
     az ad user delete --id $principalName
 }
+
+$rgName = "$workloadName-rg"
+az group delete -n $rgName -y   
