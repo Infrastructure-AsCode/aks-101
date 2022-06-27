@@ -17,7 +17,9 @@ namespace IaC.aks101.GuineaPig.Controllers
         [HttpGet]
         public IActionResult Healthy()
         {
-            return Ok("[health] - healthy");
+            var message = "[lab-07] - always healthy";
+            _logger.LogInformation(message);
+            return Ok(message);
         }
         
         [HttpGet("almost_healthy")]
@@ -31,13 +33,11 @@ namespace IaC.aks101.GuineaPig.Controllers
             if (secondsFromStart < secondsToWait)
             {
                 _logger.LogInformation($"< {secondsToWait} seconds -> response with 200");
-                return Ok("[health.almost_healthy] - healthy first 10 sec");
+                return Ok("[lab-07] - healthy first 10 sec");
             }
-            else
-            {
-                _logger.LogInformation($"> {secondsToWait} seconds -> response with 500");
-                return StatusCode(500); 
-            }
+
+            _logger.LogInformation($"> {secondsToWait} seconds -> response with 500");
+            return StatusCode(500);
         }
     }
 }

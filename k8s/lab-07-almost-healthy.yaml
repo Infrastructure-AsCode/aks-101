@@ -5,7 +5,7 @@ metadata:
 spec:
   containers:
   - name: api
-    image: eratewsznjnxaunsoy42acr1.azurecr.io/guinea-pig:v1
+    image: eratewsznjnxaunsoy42acr.azurecr.io/guinea-pig:v4
     imagePullPolicy: IfNotPresent
     resources: {}
     livenessProbe:

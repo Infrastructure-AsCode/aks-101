@@ -19,28 +19,9 @@ resource sharedResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' exi
   name: sharedResourceGroupName
 }
 
-module appInsights 'appInsights.bicep' = {
-  scope: resourceGroup
-  name: 'appInsights'
-  params: {
-    workloadName: workloadName
-    instanceId: instanceId
-    location: location
-  }
-}
 module acr 'acr.bicep' = {
   scope: resourceGroup
   name: 'acr'
-  params: {
-    workloadName: workloadName
-    instanceId: instanceId
-    location: location
-  }
-}
-
-module logAnalytics 'logAnalytics.bicep' = {
-  scope: resourceGroup
-  name: 'logAnalytics'
   params: {
     workloadName: workloadName
     instanceId: instanceId
@@ -68,7 +49,6 @@ module aks 'aks.bicep' = {
     instanceId: instanceId
     location: location
     aksSubnetId: vnet.outputs.aksSubnetId
-    logAnalyticsWorkspaceId: logAnalytics.outputs.logAnalyticsWorkspaceId
   }
 }
 

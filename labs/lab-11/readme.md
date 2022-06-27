@@ -12,109 +12,9 @@ This lab shows you how to deploy the NGINX ingress controller in an AKS cluster.
 
 You will learn how to:
 
-* Install and configure NGINX ingress controller
 * Implement `ingress` routes to expose kubernetes services 
 
-## Task #0 - install helm
-
-If you don't have `helm` installed, install it:
-
-### For Windows, use `Chocolatey`
-```powershell
-# For Windows, use Chocolatey
-choco install kubernetes-helm
-```
-
-### For Ubuntu, use Apt
-
-```bash
-# For Ubuntu, use Apt
-curl https://baltocdn.com/helm/signing.asc | sudo apt-key add -
-sudo apt-get install apt-transport-https --yes
-echo "deb https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
-sudo apt-get update
-sudo apt-get install helm
-```
-
-### For Mac, use brew
-
-```bash
-brew install helm
-```
-
-## Task #1 - deploy NGINX ingress controller
-
-Cerate `internal-ingress.yaml` with the following content. 
-
-```yaml
-controller:
-  replicaCount: 2
-  service:
-    annotations:
-      service.beta.kubernetes.io/azure-load-balancer-internal: "true"
-  tolerations:
-    - key: "CriticalAddonsOnly"
-      operator: "Equal"
-      value: "true"
-      effect: "NoSchedule"
-  nodeSelector: 
-    beta.kubernetes.io/os: linux
-  affinity: 
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-        - matchExpressions:
-          - key: agentpool
-            operator: In
-            values: 
-            - systempool
-  admissionWebhooks:
-    patch:
-      nodeSelector: 
-        beta.kubernetes.io/os: linux    
-defaultBackend:
-  nodeSelector: 
-    beta.kubernetes.io/os: linux
-```
-
-Since ingress controller is business critical component, I want to deploy it to the system nodes, therefore I need to configure `tolerations`. I also want to specify more than one replica count, in our case it's two.
-
-Deploy NGINX ingress controller using helm. 
-
-```bash
-# Add the ingress-nginx repository
-helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-
-# Use Helm to deploy an NGINX ingress controller
-helm install nginx-ingress ingress-nginx/ingress-nginx \
-    --namespace kube-system \
-    -f internal-ingress.yaml 
-
-# Check that all pods are up and running. 
-kubectl -n kube-system get po -l app.kubernetes.io/name=ingress-nginx
-nginx-ingress-ingress-nginx-controller-54b75cbccd-4wl8p   1/1     Running   0          5m14s
-nginx-ingress-ingress-nginx-controller-54b75cbccd-t8v5x   1/1     Running   0          5m14s
-
-# Check load balancer external ip
-kubectl --namespace kube-system get services -o wide -w nginx-ingress-ingress-nginx-controller
-NAME                                     TYPE           CLUSTER-IP    EXTERNAL-IP   PORT(S)                      AGE   SELECTOR
-nginx-ingress-ingress-nginx-controller   LoadBalancer   10.0.224.67   10.11.0.146   80:31456/TCP,443:31486/TCP   19m   app.kubernetes.io/component=controller,app.kubernetes.io/instance=nginx-ingress,app.kubernetes.io/name=ingress-nginx
-```
-
-It may take a few minutes for the LoadBalancer IP to be available. Initially, `EXTERNAL-IP` column will contain `<pending>`, but when Azure Load Balancer will be cerated and IP address will be assigned, `EXTERNAL-IP` will contain private IP address, in my case it was `10.11.0.146`. 
-
-If you now go to the Azure Portal and navigate to cluster managed resource group (`MC_iac-ws2-blue-rg_iac-ws2-blue-aks_westeurope` or similar), you will find new instance of Azure Load Balancer called `kubernetes-internal`.
-
-```bash
-# Get cluster managed resource group
-az aks show -g iac-ws2-blue-rg -n iac-ws2-blue-aks  --query nodeResourceGroup -otsv
-```
-
-![ialb](images/internal-alb.png)
-
-If you open Overview page for this load balancer, you will find private IP address is assigned to it. In my case, it was `10.11.0.146`
-
-![ialb](images/internal-alb-ip.png)
+...
 
 No ingress rules have been created yet, so the NGINX ingress controller's default 404 page is displayed if you browse to the internal IP address. Ingress rules are configured in the following tasks.
 
@@ -136,30 +36,30 @@ kubectl run curl -i --tty --rm --restart=Never --image=radial/busyboxplus:curl -
 
 To see the ingress controller in action, let's deploy two applications in our AKS cluster. 
 
-## Task #2 - deploy api-a application 
+## Task #2 - deploy guinea-pig-lab11-task1 application 
 
-Create `api-a-deployment.yaml` file with the following k8s resources:
+Create `guinea-pig-lab11-task1-deployment.yaml` file with the following k8s resources:
 
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: api-a
+  name: guinea-pig-lab11-task1
   labels:
-    app: api-a
+    app: guinea-pig-lab11-task1
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: api-a
+      app: guinea-pig-lab11-task1
   template:
     metadata:
       labels:
-        app: api-a
+        app: guinea-pig-lab11-task1
     spec:
       containers:
       - name: api
-        image: iacws2<YOUR-NAME>acr.azurecr.io/apia:v1
+        image: eratewsznjnxaunsoy42acr.azurecr.io/guinea-pig:v1
         imagePullPolicy: IfNotPresent
         resources: {}
         livenessProbe:
@@ -178,34 +78,34 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: api-a-service
+  name: guinea-pig-lab11-task1-service
   labels:
-    app: api-a
+    app: guinea-pig-lab11-task1
 spec:
   ports:
   - port: 8081
     protocol: TCP
     targetPort: 80
   selector:
-    app: api-a
+    app: guinea-pig-lab11-task1
   type: ClusterIP
 ```
 
 ```bash
-# Deploy api-a application
-kubectl apply -f api-a-deployment.yaml
-deployment.apps/api-a created
-service/api-a-service created
+# Deploy guinea-pig-lab11-task1 application
+kubectl apply -f guinea-pig-lab11-task1-deployment.yaml
+deployment.apps/guinea-pig-lab11-task1 created
+service/guinea-pig-lab11-task1-service created
 ```
-As you can see, here we deployed two replicas of api-a and service exposed at port `8081`. Now, let's test it:
+As you can see, here we deployed two replicas of guinea-pig-lab11-task1 and service exposed at port `8081`. Now, let's test it:
 
 ```bash
 # Start test pod with interactive shell
 kubectl run curl -i --tty --rm --restart=Never --image=radial/busyboxplus:curl -- sh
 
 # Test api
-[ root@curl:/ ]$ curl http://api-a-service:8081/api
-[api-a] - OK.
+[ root@curl:/ ]$ curl http://guinea-pig-lab11-task1-service:8081/api
+[api] - OK.
 [ root@curl:/ ]$ exit
 ```
 
@@ -221,7 +121,7 @@ metadata:
 data:
   appsettings.json: |-
     {
-      "ApiAServiceUrl": "http://api-a-service:8081/api"      
+      "ApiAServiceUrl": "http://guinea-pig-lab11-task1-service:8081/api"      
     }
 ---    
 apiVersion: apps/v1
@@ -283,13 +183,13 @@ spec:
 ```
 
 ```bash
-# Deploy api-a application
+# Deploy guinea-pig-lab11-task1 application
 kubectl apply -f api-b-deployment.yaml
 configmap/api-b-appsettings created
 deployment.apps/api-b created
 service/api-b-service created
 ```
-As you can see, here we've deployed `api-b-appsettings` configmap with configuration pointing to the `api-a-service` service endpoint, one replica of `api-b` and `api-b-service` service exposed at port `8081`. Now, let's test it:
+As you can see, here we've deployed `api-b-appsettings` configmap with configuration pointing to the `guinea-pig-lab11-task1-service` service endpoint, one replica of `api-b` and `api-b-service` service exposed at port `8081`. Now, let's test it:
 
 ```bash
 # Start test pod with interactive shell
@@ -369,13 +269,13 @@ kubectl run curl -i --tty --rm --restart=Never --image=radial/busyboxplus:curl -
 
 ## Task #5 - implement multiple ingress routes
 
-Create `api-a-b-ingress.yaml` file with the following ingress manifest:
+Create `guinea-pig-lab11-task1-b-ingress.yaml` file with the following ingress manifest:
 
 ```yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: api-a-b-ingress
+  name: guinea-pig-lab11-task1-b-ingress
   namespace: default
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
@@ -390,7 +290,7 @@ spec:
         pathType: Prefix      
         backend:
           service:
-            name: api-a-service
+            name: guinea-pig-lab11-task1-service
             port:
               number: 8081
       - path: /apib(/|$)(.*)
@@ -410,12 +310,12 @@ In this ingress definition, any characters captured by (.*) will be assigned to 
 * `10.11.0.146/apib/api` rewrites to `10.11.0.146/api`
 
 ```bash
-# Deploy api-a-b-ingress ingress  
-kubectl apply -f api-a-b-ingress.yaml 
-ingress.networking.k8s.io/api-a-b-ingress created
+# Deploy guinea-pig-lab11-task1-b-ingress ingress  
+kubectl apply -f guinea-pig-lab11-task1-b-ingress.yaml 
+ingress.networking.k8s.io/guinea-pig-lab11-task1-b-ingress created
 
 # Describe api-b-ingress ingress and check the Rules section
-kubectl describe ingress api-a-b-ingress
+kubectl describe ingress guinea-pig-lab11-task1-b-ingress
 ```
 
 As you can see in the `Rules`, there are two path pointing to corresponding services
@@ -425,7 +325,7 @@ Rules:
   Host        Path  Backends
   ----        ----  --------
   *
-              /apia(/|$)(.*)   api-a-service:8081 (10.11.0.118:80,10.11.0.142:80)
+              /apia(/|$)(.*)   guinea-pig-lab11-task1-service:8081 (10.11.0.118:80,10.11.0.142:80)
               /apib(/|$)(.*)   api-b-service:8081 (10.11.0.119:80)
 ```
 
@@ -433,7 +333,7 @@ Now, let's test new ingress controller:
 
 ```bash
 # Get ingress IP address, but as you already noticed, all ingress will have the same private IP used by NGINX ingress controller
-kubectl get ingress api-a-b-ingress
+kubectl get ingress guinea-pig-lab11-task1-b-ingress
 NAME            CLASS   HOSTS   ADDRESS       PORTS   AGE
 api-b-ingress   nginx   *       10.11.0.146   80      11m
 
@@ -442,7 +342,7 @@ kubectl run curl -i --tty --rm --restart=Never --image=radial/busyboxplus:curl -
 
 # Test apia endpoint
 [ root@curl:/ ]$ curl http://10.11.0.146/apia/api
-[api-a] - OK
+[guinea-pig-lab11-task1] - OK
 
 # Test apia endpoint
 [ root@curl:/ ]$ curl http://10.11.0.146/apib/api

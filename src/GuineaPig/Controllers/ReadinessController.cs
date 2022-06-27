@@ -17,7 +17,7 @@ namespace IaC.aks101.GuineaPig.Controllers
         [HttpGet]
         public IActionResult Ready()
         {
-            _logger.LogInformation("[lab-05 task #4] - always ready");
+            _logger.LogInformation("[lab-07] - always ready");
             return Ok("[readiness] - always ready");
         }
 
@@ -30,7 +30,7 @@ namespace IaC.aks101.GuineaPig.Controllers
             if (minutesFromStart % 2 != 0)
             {
                 _logger.LogInformation($"{minutesFromStart} min from the start -> response with 200");
-                return Ok("[readiness.unstable] - ready");
+                return Ok("[lab-07] - ready");
             }
             else
             {

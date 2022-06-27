@@ -1,7 +1,5 @@
 # lab-07 - Configuring Readiness and Liveness probes
 
-## Estimated completion time - xx min
-
 Kubernetes supports monitoring applications in the form of readiness and liveness probes. 
 
 ### Liveness probes
@@ -28,7 +26,7 @@ As before, split your terminal in two. At the right-hand window, run `kubectl ge
 ## Task #2 - add Liveness probe
 
 Create new yaml pod definition file `lab-07-healthy.yaml` with the following content. 
-Note that you should use your own ACR url for `image` field and that there is new `livenessProbe` section in the definition
+Note that there is new `livenessProbe` section in the definition
 
 ```yaml
 apiVersion: v1
@@ -38,7 +36,7 @@ metadata:
 spec:
   containers:
   - name: api
-    image: eratewsznjnxaunsoy42acr<YOUR_ID>.azurecr.io/guinea-pig:v1
+    image: eratewsznjnxaunsoy42acr.azurecr.io/guinea-pig:v1
     imagePullPolicy: IfNotPresent
     resources: {}
     livenessProbe:
@@ -62,18 +60,14 @@ Check the `lab-07-healthy` logs
 ```bash
 # Stream logs from lab-07-healthy pod
 kubectl logs lab-07-healthy -f
-info: api_a.Controllers.HealthController[0]
-      [lab-07 task #1] - always healthy
-info: api_a.Controllers.HealthController[0]
-      [lab-07 task #1] - always healthy
-info: api_a.Controllers.HealthController[0]
-      [lab-07 task #1] - always healthy
-info: api_a.Controllers.HealthController[0]
-      [lab-07 task #1] - always healthy
-info: api_a.Controllers.HealthController[0]
-      [lab-07 task #1] - always healthy
-info: api_a.Controllers.HealthController[0]
-      [lab-07 task #1] - always healthy
+[20:20:56 INF] [lab-07] - always healthy
+[20:20:59 INF] [lab-07] - always healthy
+[20:21:02 INF] [lab-07] - always healthy
+[20:21:05 INF] [lab-07] - always healthy
+[20:21:08 INF] [lab-07] - always healthy
+[20:21:11 INF] [lab-07] - always healthy
+[20:21:14 INF] [lab-07] - always healthy
+[20:21:17 INF] [lab-07] - always healthy
 ```
 
 As you can see, the `/health` endpoint is now called every 3 seconds (defined at `periodSeconds` field in the manifest).
@@ -84,28 +78,28 @@ Let's try to simulate such a situation.
 
 ## Task #3 - add Liveness probe with unhealthy endpoint
 
-For this task let's use `/health/almost_healthy` endpoint for `livenessProbe` get request. Check implementation of `AlmostHealthy` method at `src\GuineaPig\Controllers\HealthController.cs` file. 
-It contains extra logic:
+For this task let's use `/health/almost_healthy` endpoint as a `livenessProbe` get request. Check implementation of `AlmostHealthy` method at `src\GuineaPig\Controllers\HealthController.cs` file. 
+
+It contains some extra "logic":
 * for the first 10 seconds the app is alive and the `/health/almost_healthy` handler returns a status of 200
 * after 10 sec, the handler returns a status of 500
 
 ```c#
+...
 var secondsFromStart = Timekeeper.GetSecondsFromStart();
 _logger.LogInformation($"{secondsFromStart} seconds from start...");
 var secondsToWait = 10;
 if (secondsFromStart < secondsToWait)
 {
     _logger.LogInformation($"< {secondsToWait} seconds -> response with 200");
-    return Ok("[lab-07 task #2] - healthy first 10 sec");
+    return Ok("[lab-07] - healthy first 10 sec");
 }
-else
-{
-    _logger.LogInformation($"> {secondsToWait} seconds -> response with 500");
-    return StatusCode(500); 
-}
+
+_logger.LogInformation($"> {secondsToWait} seconds -> response with 500");
+return StatusCode(500);
 ```
 
-Create new yaml pod definition file `lab-07-almost-healthy.yaml` with the following content. Note that you should use your ACR url for `image` field and that `path:` now points to `/health/almost_healthy`
+Create new manifest file called `lab-07-almost-healthy.yaml` with the following content. Note that `path:` is now points to `/health/almost_healthy`
 
 ```yaml
 apiVersion: v1
@@ -115,7 +109,7 @@ metadata:
 spec:
   containers:
   - name: api
-    image: eratewsznjnxaunsoy42acr<YOUR_ID>.azurecr.io/guinea-pig:v1
+    image: eratewsznjnxaunsoy42acr.azurecr.io/guinea-pig:v1
     imagePullPolicy: IfNotPresent
     resources: {}
     livenessProbe:
@@ -133,6 +127,8 @@ Deploy it
 kubectl apply -f .\lab-07-almost-healthy.yaml
 pod/lab-07-almost-healthy created
 ```
+
+Observe pod behavior at the monitoring window with `kubectl get po -w` command. 
 
 The `kubelet` starts performing health checks 3 seconds after the container starts. So the first couple of health checks will succeed. But after 10 seconds, the health checks will fail, and the kubelet will kill and restart the container. After several attempts, pod will go into `CrashLoopBackOff` state.
 
@@ -169,7 +165,7 @@ Events:
 
 Readiness probes are configured similarly to liveness probes. The only difference is that you use the `readinessProbe` field instead of the `livenessProbe` field.
 
-Create new yaml pod definition file `lab-07-ready.yaml` with the following content. 
+Create new manifest file `lab-07-ready.yaml` with the following content. 
 Note that you should use your ACR url for `image` field and there is additional `readinessProbe` section 
 
 ```yaml
@@ -180,7 +176,7 @@ metadata:
 spec:
   containers:
   - name: api
-    image: eratewsznjnxaunsoy42acr<YOUR_ID>.azurecr.io/guinea-pig:v1
+    image: eratewsznjnxaunsoy42acr.azurecr.io/guinea-pig:v1
     imagePullPolicy: IfNotPresent
     resources: {}
     livenessProbe:
@@ -202,6 +198,7 @@ Now, deploy it
 ```bash
 # Deploying lab-07-ready.yaml
 kubectl apply -f lab-07-ready.yaml
+pod/lab-07-ready created
 ```
 
 Check the `lab-07-ready` logs
@@ -209,14 +206,21 @@ Check the `lab-07-ready` logs
 ```bash
 # Stream logs from lab-07-ready pod
 kubectl logs lab-07-ready -f
-info: api_a.Controllers.ReadinessController[0]
-      [lab-07 task #4] - always ready
-info: api_a.Controllers.HealthController[0]
-      [lab-07 task #1] - always healthy
-info: api_a.Controllers.ReadinessController[0]
-      [lab-07 task #4] - always ready
-info: api_a.Controllers.HealthController[0]
-      [lab-07 task #1] - always healthy```
+[20:30:42 INF] [lab-07] - always ready
+[20:30:43 INF] [lab-07] - always ready
+[20:30:43 INF] [lab-07] - always healthy
+[20:30:46 INF] [lab-07] - always ready
+[20:30:46 INF] [lab-07] - always healthy
+[20:30:49 INF] [lab-07] - always healthy
+[20:30:49 INF] [lab-07] - always ready
+[20:30:52 INF] [lab-07] - always healthy
+[20:30:52 INF] [lab-07] - always ready
+[20:30:55 INF] [lab-07] - always ready
+[20:30:55 INF] [lab-07] - always healthy
+[20:30:58 INF] [lab-07] - always ready
+[20:30:58 INF] [lab-07] - always healthy
+[20:31:01 INF] [lab-07] - always healthy
+[20:31:01 INF] [lab-07] - always ready
 ```
 
 As you can see, both  `/health` and `/readiness` endpoints are called every 3 seconds.
@@ -226,8 +230,7 @@ As you can see, both  `/health` and `/readiness` endpoints are called every 3 se
 For this task we will use `/readiness/unstable` endpoint for `livenessProbe` get request. Check implementation of `Unstable` method at `src\GuineaPig\Controllers\ReadinessController.cs` controller. 
 It contains extra logic that response status changes every minute. That is - first minute - 200 and next minute - 500, next minute - 200 etc...
 
-
-Create new yaml pod definition file `lab-07-ready-unstable.yaml` with the following content. 
+Create manifest file `lab-07-ready-unstable.yaml` with the following content. 
 Note that you should use your ACR url for `image` field and `readinessProbe` points to `/readiness/unstable` endpoint
 
 ```yaml
@@ -238,7 +241,7 @@ metadata:
 spec:
   containers:
   - name: api
-    image: eratewsznjnxaunsoy42acr<YOUR_ID>.azurecr.io/guinea-pig:v1
+    image: eratewsznjnxaunsoy42acr.azurecr.io/guinea-pig:v1
     imagePullPolicy: IfNotPresent
     resources: {}
     livenessProbe:
@@ -260,18 +263,18 @@ Now, deploy it
 ```bash
 # Deploying lab-07-ready-unstable.yaml
 kubectl apply -f lab-07-ready-unstable.yaml
+pod/lab-07-ready-unstable created
 ```
-and observe what happens at the "watch" window. You should see similar behavior:
+wait for about 2-3 while observing what is happening at the "watch" window. You should see similar behavior:
+
 ```bash
-lab-07-ready-unstable   0/1     Pending            0          0s
-lab-07-ready-unstable   0/1     Pending            0          0s
-lab-07-ready-unstable   0/1     ContainerCreating   0          0s
-lab-07-ready-unstable   0/1     Running             0          2s
-lab-07-ready-unstable   1/1     Running             0          62s
-lab-07-ready-unstable   0/1     Running             0          2m8s
-lab-07-ready-unstable   1/1     Running             0          3m2s
-lab-07-ready-unstable   0/1     Running             0          4m8s
+NAME                    READY   STATUS             RESTARTS        AGE
+lab-07-ready-unstable   0/1     Running            0               15s
+lab-07-ready-unstable   1/1     Running            0               63s
+lab-07-ready-unstable   0/1     Running            0               2m9s
+lab-07-ready-unstable   1/1     Running            0               3m3s
 ```
+
 as you can see, it periodically (every minute) changes `Ready` field from `1/1` to `0/1`, the `Status` always shows `Running` and it never goes into the `CrashLoopBackOff` status.
 
 Check the pod description 

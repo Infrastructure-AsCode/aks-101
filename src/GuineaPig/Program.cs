@@ -11,9 +11,12 @@ namespace IaC.aks101.GuineaPig
         public static void Main(string[] args)
         {
             Log.Logger = new LoggerConfiguration()
-               .Enrich.FromLogContext()
-               .WriteTo.Console()
-               .CreateLogger();
+                .Enrich.FromLogContext()
+                .MinimumLevel.Information()
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+                .MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Information)                
+                .WriteTo.Console()
+                .CreateLogger();
             try
             {
                 CreateHostBuilder(args).Build().Run();

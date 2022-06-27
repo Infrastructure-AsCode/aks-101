@@ -1,6 +1,5 @@
 param workloadName string
 param instanceId int
-param logAnalyticsWorkspaceId string 
 param aksSubnetId string
 param location string
 
@@ -53,14 +52,6 @@ resource aks 'Microsoft.ContainerService/managedClusters@2021-05-01' = {
           }
         }
       ]
-    }
-    addonProfiles: {
-      omsagent: {
-        enabled: true
-        config: {
-          logAnalyticsWorkspaceResourceID: logAnalyticsWorkspaceId
-        }
-      }
     }
   }
 }
