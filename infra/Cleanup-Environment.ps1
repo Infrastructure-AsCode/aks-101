@@ -11,7 +11,7 @@ param (
     [int] $InstanceCount
 )
 
-for ($i = 1; $i -le $InstanceCount; $i++) {
+for ($i = 2; $i -le $InstanceCount; $i++) {
     $userName = "$workloadName-user$i"
     $principalName = "$userName@iac-labs.com"
     $rgName = "$workloadName-rg-$i"

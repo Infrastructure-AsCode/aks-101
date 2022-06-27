@@ -24,7 +24,7 @@ As we did before, split your terminal in two. At the right-hand window, run `kub
 
 ```bash
 # Let’s deploy our app with the `kubectl create deployment` command
-kubectl create deployment lab-08-task2 --image=eratewsznjnxaunsoy42acr<YOUR_ID>.azurecr.io/guinea-pig:v1
+kubectl create deployment lab-08-task2 --image=eratewsznjnxaunsoy42acr.azurecr.io/guinea-pig:v1
 
 # To list your deployments use the `get deployments` command
 kubectl get deployments
@@ -34,7 +34,7 @@ lab-08-task2   1/1     1            1           6m19s
 # Get lab-08-task2 deployment expanded (aka "wide") output
 kubectl get deployment lab-08-task2 -o wide
 NAME         READY   UP-TO-DATE   AVAILABLE   AGE     CONTAINERS   IMAGES                               SELECTOR
-lab-08-task2   1/1     1            1           6m58s   apia         eratewsznjnxaunsoy42acr1.azurecr.io/guinea-pig:v5   app=lab-08-task2
+lab-08-task2   1/1     1            1           6m58s   apia         eratewsznjnxaunsoy42acr.azurecr.io/guinea-pig:v1   app=lab-08-task2
 
 # Get lab-08-task2 deployment yaml definition
 kubectl get deployment lab-08-task2 -o yaml
@@ -51,7 +51,7 @@ lab-08-task2-9d58f9659-ksr5g   1/1     Running   0          14m
 
 ## Task #3 - deploy our app using yaml definition file
 
-Create new `lab-08-task3-deployment.yaml` file with the following content
+Create new `lab-08-task3-deployment.yaml` manifest file with the following content
 
 ```yaml
 apiVersion: apps/v1
@@ -72,7 +72,7 @@ spec:
     spec:
       containers:
       - name: api
-        image: eratewsznjnxaunsoy42acr<YOUR_ID>.azurecr.io/guinea-pig:v1
+        image: eratewsznjnxaunsoy42acr.azurecr.io/guinea-pig:v1
         imagePullPolicy: IfNotPresent
         resources: {}
         livenessProbe:
@@ -109,6 +109,7 @@ kubectl get deployments lab-08-task3
 NAME         READY   UP-TO-DATE   AVAILABLE   AGE
 lab-08-task3   3/3     3            3           3m5s
 ```
+
 When you inspect the Deployments in your cluster, the following fields are displayed:
 
 * `READY` displays how many replicas of the application are available to your users. It follows the pattern ready/desired
@@ -127,35 +128,20 @@ lab-08-task3-59b9fcb587-cjd6x   1/1     Running            0          5m46s   ap
 
 ## Task #4 - Updating a Deployment
 
-To work with Deployment update task, we need some extra version of our application images in ACR. Let's push 3 more versions. 
+To work with Deployment update task, we need some extra version of our application images in ACR. I push three more versions into shared `eratewsznjnxaunsoy42acr` ACR registry. 
 
-```bash
-# Set you user id
-export WS_USER_ID=<YOUR_ID>
-
-# Navigate to `src\GuineaPig` folder
-
-# Push version v6
-az acr build --registry eratewsznjnxaunsoy42acr$WS_USER_ID --image guinea-pig:v6 --file Dockerfile ..
-
-# Push version v7
-az acr build --registry eratewsznjnxaunsoy42acr$WS_USER_ID --image guinea-pig:v7 --file Dockerfile ..
-
-# Push version v8
-az acr build --registry eratewsznjnxaunsoy42acr$WS_USER_ID --image guinea-pig:v8 --file Dockerfile ..
-```
+* guinea-pig:v6
+* guinea-pig:v7
+* guinea-pig:v8
 
 A Deployment's rollout is only triggered if Pod's template `.spec.template` is changed. 
 
 ```bash
 # Let's update the api container and use the guinea-pig:v6 image instead of the guinea-pig:v1 image
-kubectl set image deployment/lab-08-task3 api=eratewsznjnxaunsoy42acr$WS_USER_ID.azurecr.io/guinea-pig:v6 --record
+kubectl set image deployment/lab-08-task3 api=eratewsznjnxaunsoy42acr.azurecr.io/guinea-pig:v6 --record
 
 # To see the Deployment rollout status, run
 kubectl rollout status deployment/lab-08-task3
-Waiting for deployment "lab-08-task3" rollout to finish: 1 out of 3 new replicas have been updated...
-Waiting for deployment "lab-08-task3" rollout to finish: 1 out of 3 new replicas have been updated...
-Waiting for deployment "lab-08-task3" rollout to finish: 1 out of 3 new replicas have been updated...
 Waiting for deployment "lab-08-task3" rollout to finish: 2 out of 3 new replicas have been updated...
 Waiting for deployment "lab-08-task3" rollout to finish: 2 out of 3 new replicas have been updated...
 Waiting for deployment "lab-08-task3" rollout to finish: 2 out of 3 new replicas have been updated...
