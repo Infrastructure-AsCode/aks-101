@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: guinea-pig-service-2
+  labels:
+    app: lab-08-task3
+spec:
+  ports:
+  - port: 8081
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: lab-08-task3
+  type: ClusterIP
