@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: logging-appsettings
+data:
+  appsettings.json: |-
+    {
+      "Serilog": {
+        "Using":  [ "Serilog.Sinks.Console" ],
+        "MinimumLevel": {
+          "Default": "Error",
+          "Override": {
+            "Microsoft": "Error",
+            "Microsoft.Hosting.Lifetime": "Error"
+          }
+        },
+        "WriteTo": [
+          { "Name": "Console" }
+        ],
+        "Enrich": [ "FromLogContext", "WithMachineName", "WithThreadId" ],
+        "Properties": {
+          "Application": "guinea-pig"
+        }
+      }
+    }

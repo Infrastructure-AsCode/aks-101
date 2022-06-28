@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lab-10-task1
+  labels:
+    app: lab-10-task1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lab-10-task1
+  template:
+    metadata:
+      labels:
+        app: lab-10-task1
+    spec:
+      containers:
+      - name: api
+        image: eratewsznjnxaunsoy42acr.azurecr.io/guinea-pig:v3
+        imagePullPolicy: IfNotPresent
+        resources: {}
+        volumeMounts:
+        - name: logging-config
+          mountPath: /app/config          
+      volumes:
+      - name: logging-config
+        configMap:
+          name: logging-appsettings
