@@ -29,7 +29,7 @@ This workshop covers the basics of using Kubernetes and here is the agenda:
  * [Lab-10](labs/lab-10/readme.md): Working with ConfigMaps and secrets
  * Slides: Kubernetes Ingress 
  * [Lab-11](labs/lab-11/readme.md): configuring ingress with nginx
- * Slides: Scaling options in Kubernetes
+ * Slides: Scaling options
  * [Lab-12](labs/lab-12/readme.md): scale applications manually
  * [Lab-13](labs/lab-13/readme.md): use Horizontal Pod Autoscaling (HPA) to automatically scale applications
  * Slides: Kubernetes Event-driven Autoscaling KEDA 

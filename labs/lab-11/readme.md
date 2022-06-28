@@ -42,7 +42,7 @@ brew install helm
 
 ## Task #1 - deploy NGINX ingress controller
 
-Cerate `internal-ingress.yaml` with the following content. 
+Create `internal-ingress.yaml` with the following content. 
 
 ```yaml
 controller:
@@ -89,7 +89,7 @@ NAME                                     TYPE           CLUSTER-IP     EXTERNAL-
 nginx-ingress-ingress-nginx-controller   LoadBalancer   10.0.151.123   10.1.0.66     80:31235/TCP,443:32741/TCP   143m   app.kubernetes.io/component=controller,app.kubernetes.io/instance=nginx-ingress,app.kubernetes.io/name=ingress-nginx
 ```
 
-It may take a few minutes for the LoadBalancer IP to be available. Initially, `EXTERNAL-IP` column will contain `<pending>`, but when Azure Load Balancer will be cerated and IP address will be assigned, `EXTERNAL-IP` will contain private IP address, in my case it was `10.1.0.66`. 
+It may take a few minutes for the LoadBalancer IP to be available. Initially, `EXTERNAL-IP` column will contain `<pending>`, but when Azure Load Balancer will be created and IP address will be assigned, `EXTERNAL-IP` will contain private IP address, in my case it was `10.1.0.66`. 
 
 No ingress rules have been created yet, so the NGINX ingress controller's default 404 page is displayed if you browse to the internal IP address. Ingress rules are configured in the following tasks.
 

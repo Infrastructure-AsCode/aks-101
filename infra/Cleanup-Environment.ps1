@@ -24,4 +24,4 @@ for ($i = 1; $i -le $InstanceCount; $i++) {
 }
 
 $rgName = "$workloadName-rg"
-az group delete -n $rgName -y   
+#az group delete -n $rgName -y   

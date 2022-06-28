@@ -1,4 +1,4 @@
-# lab-10 - Configmaps and secrets
+# lab-10 - ConfigMaps and secrets
 
 ## Estimated completion time - xx min
 
@@ -218,7 +218,7 @@ Create `appsettings.secrets.json` file with the following content. Imagine that 
 }
 ```
 
-Now cerate Kubernetes secret from this file using `kubectl create secret`
+Now create Kubernetes secret from this file using `kubectl create secret`
 
 ```bash
 # Create new secret from the appsettings.secrets.json file

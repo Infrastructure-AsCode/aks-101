@@ -50,9 +50,7 @@ status:
   desiredReplicas: 1
 ```
 
-
-
-Observe the HPA status changes at the left window.
+Observe how HPA status is changing at the left window.
 
 ```bash
 kubectl get hpa -w

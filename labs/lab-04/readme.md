@@ -294,6 +294,6 @@ pod "guinea-pig-lab4-task5" deleted
 * [Formatting output](https://kubernetes.io/docs/reference/kubectl/cheatsheet/#formatting-output)
 * [Use Port Forwarding to Access Applications in a Cluster](https://kubernetes.io/docs/tasks/access-application-cluster/port-forward-access-application-cluster/)
 
-## Next: Readiness and Liveness probes
+## Next: Working with Namespaces
 
 [Go to lab-05](../lab-05/readme.md)
