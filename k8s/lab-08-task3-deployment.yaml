@@ -19,15 +19,3 @@ spec:
         image: eratewsznjnxaunsoy42acr.azurecr.io/guinea-pig:v1
         imagePullPolicy: IfNotPresent
         resources: {}
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 80
-          initialDelaySeconds: 3
-          periodSeconds: 3    
-        readinessProbe:
-          httpGet:
-            path: /readiness
-            port: 80
-          initialDelaySeconds: 3
-          periodSeconds: 3

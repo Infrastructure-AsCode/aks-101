@@ -75,28 +75,16 @@ spec:
         image: eratewsznjnxaunsoy42acr.azurecr.io/guinea-pig:v1
         imagePullPolicy: IfNotPresent
         resources: {}
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 80
-          initialDelaySeconds: 3
-          periodSeconds: 3    
-        readinessProbe:
-          httpGet:
-            path: /readiness
-            port: 80
-          initialDelaySeconds: 3
-          periodSeconds: 3
 ```
 
 In this definition:
 
 * A Deployment named `lab-08-task3-deployment` is created, specified by the `metadata.name` field.
 * The Deployment creates three replicated Pods, specified by the `.spec.replicas` field.
-* The `.spec.selector` field defines how the Deployment finds which Pods to manage. In our case, we simply select a label that is defined in the Pod template (`app: lab-08-task3`). 
+* The `.spec.selector` field defines how the Deployment finds which Pods to manage. In our case, we simply select a label that is defined in the Pod template (`app: lab-08-task3`).
 * The `template` field contains the following sub-fields:
     * The Pods are labeled `app: lab-08-task3` using the `.metadata.labels` field
-* The `.spec.containers` section is copied from the `.spec.containers` section of `Lab-04 Task #4` pod definition
+* The `.spec.containers` section defines containers specifications such image, liveness and readiness probes, resource management, etc...
 
 Now let's deploy it 
 
