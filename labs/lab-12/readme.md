@@ -148,16 +148,20 @@ Now let's check some pod metrics. Navigate to https://portal.azure.com/, search 
 
 ![](images/rg-1.png)
 
-From the resource list, select AKS. IN my case, it's called `eratews-aks-1`
+From the resource list, select AKS. In my case, it's called `eratews-aks-1`
 
 ![](images/rg-2.png)
 
 
-From the left menu, navigate to `Monitoring->Insights`, select `Controllers` tab, set `Time range` to 30 min, filter pods by `guinea-pig`.
+From the left menu, navigate to `Monitoring->Workbooks` and select `Workload Details`.
+
+![](images/wb-1.png)
+
+Set `Time range` to `Last 15 min`, set `Namespace` filter to `default` namespace and select `guinea-pig-....` as a `Workload name`.
 
 ![](images/cpu-1.png)
 
-By default it shows the `CPU usage (in millicores)` per pod. Since we are now running load test towards our `guinea-pig` app and `api/highcpu` endpoint simulate high CPU operation, pod is now uses 100% of the allocated CPU limits.
+Since now `guinea-pig` is running under the load and `api/highcpu` endpoint simulates high CPU operation, `guinea-pig` is now uses 100% of the allocated CPU limits.
 
 ## Task #2 - manually scale guinea-pig application to 3 instances
 
@@ -178,12 +182,11 @@ guinea-pig-6c994669b7-xnvnr   1/1     Running   0          36m
 load-generator                1/1     Running   0          15m
 ```
 
-Wait about 1-2 mins and check AKS insights again. You should see that now CPU usage is distributed within three pods and overall CPU usage is dropped and our application is performing within acceptable CPU range.
+Wait about 1-2 minutes and check `Workload Details` workbook again. You should see that CPU usage dropped and our application is performing within acceptable CPU range (below 70%).
 
 ![chart](images/cpu-2.png)
 
 ## Task #3 - scale down application to one replica
-
 
 ```bash
 # Scaling guinea-pig to 3 instances

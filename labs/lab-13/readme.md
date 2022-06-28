@@ -24,7 +24,6 @@ In the left terminal, create new  HorizontalPodAutoscaler.
 ```bash
 # Create the HorizontalPodAutoscaler
 kubectl autoscale deployment guinea-pig --cpu-percent=70 --min=1 --max=10
-horizontalpodautoscaler.autoscaling/guinea-pig autoscaled
 
 # Get HPA yaml template
 kubectl get hpa guinea-pig -oyaml 
@@ -72,9 +71,9 @@ guinea-pig   Deployment/guinea-pig   74%/70%         1         10        4      
 guinea-pig   Deployment/guinea-pig   71%/70%         1         10        4          4m46s
 ```
 
-Let's check metrics at the dashboard. You should see something similar.
+Let's check metrics at the `Workload Details` workbook. You should see something similar.
 
-![hpa-chart](images/hpa-chart1.png)
+![hpa-chart](images/hpa-1.png)
 
 ## Task #2 - decrease the load
 
@@ -91,14 +90,11 @@ kubectl delete po load-generator
 pod "load-generator" deleted
 ```
 
-Now, load-generator will run an infinite loop, sending `wget -q -O- http://guinea-pig-service/api/highcpu` query to the `guinea-pig-service` every 0.1 sec. 
+Observe how HPA status is changing at the left window.
 
 ```bash
-kubectl run -i --tty load-generator --rm --image=busybox --restart=Never -- /bin/sh -c "while sleep 0.1; do wget -q -O- http://guinea-pig-service/api/highcpu; done"
-```
-Observe the HPA status changes at the left window.
-```bash
-get hpa -w
+# Get hpa 
+kubectl get hpa -w
 NAME         REFERENCE               TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
 guinea-pig   Deployment/guinea-pig   32%/70%         1         10        4          13m
 guinea-pig   Deployment/guinea-pig   34%/70%         1         10        4          14m
@@ -111,9 +107,9 @@ guinea-pig   Deployment/guinea-pig   68%/70%         1         10        2      
 
 CPU consumption has decreased to around 50% of the request. As a result, the Deployment was resized to 3 and then to 2 replicas.
 
-Check the metrics at the Dashboard
+Check the metrics at the `Workload Details` workbook.
 
-![hpa-chart](images/hpa-chart2.png)
+![hpa-chart](images/hpa-2.png)
 
 ## Useful links
 * [Horizontal Pod Autoscaling](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/)

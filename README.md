@@ -16,7 +16,7 @@ This workshop covers the basics of using Kubernetes and here is the agenda:
  * [Lab-03](labs/lab-03/readme.md): Containerizing your application
  * Slides: Pods, Namespaces
  * [Lab-04](labs/lab-04/readme.md): Creating, managing and testing pods
- * Lab-05: Working with namespaces
+ * [Lab-05](labs/lab-05/readme.md): Working with namespaces
  * Slides: Kubernetes Resource Management
  * [Lab-06](labs/lab-06/readme.md): Working with Kubernetes Resource Management
  * Slides: Readiness and Liveness probes
