@@ -1,7 +1,5 @@
 # lab-11 - configuring ingress with nginx
 
-## Estimated completion time - xx min
-
 An ingress controller is a piece of software that provides reverse proxy, configurable traffic routing, and TLS termination for Kubernetes services. Kubernetes ingress resources are used to configure the ingress rules and routes for individual Kubernetes services. Using an ingress controller and ingress rules, a single IP address can be used to route traffic to multiple services in a Kubernetes cluster.
 
 ![https://www.nginx.com/blog/wait-which-nginx-ingress-controller-kubernetes-am-i-using/](images/NGINX-Ingress-Controller-4-services.png)
@@ -12,9 +10,86 @@ This lab shows you how to deploy the NGINX ingress controller in an AKS cluster.
 
 You will learn how to:
 
+* Install and configure NGINX ingress controller
 * Implement `ingress` routes to expose kubernetes services 
 
-...
+## Task #0 - install helm
+
+If you don't have `helm` installed, install it:
+
+### For Windows, use `Chocolatey`
+```powershell
+# For Windows, use Chocolatey
+choco install kubernetes-helm
+```
+
+### For Ubuntu, use Apt
+
+```bash
+# For Ubuntu, use Apt
+curl https://baltocdn.com/helm/signing.asc | sudo apt-key add -
+sudo apt-get install apt-transport-https --yes
+echo "deb https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+sudo apt-get update
+sudo apt-get install helm
+```
+
+### For Mac, use brew
+
+```bash
+brew install helm
+```
+
+## Task #1 - deploy NGINX ingress controller
+
+Cerate `internal-ingress.yaml` with the following content. 
+
+```yaml
+controller:
+  replicaCount: 2
+  service:
+    annotations:
+      service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+  tolerations:
+    - key: "CriticalAddonsOnly"
+      operator: "Equal"
+      value: "true"
+      effect: "NoSchedule"
+  nodeSelector: 
+    kubernetes.io/os: linux
+  admissionWebhooks:
+    patch:
+      nodeSelector: 
+        kubernetes.io/os: linux    
+defaultBackend:
+  nodeSelector: 
+    kubernetes.io/os: linux
+```
+
+Since ingress controller is business critical component, I want to deploy it to the system nodes, therefore I need to configure `tolerations`. I also want to specify more than one replica count, in our case it's two.
+
+Deploy NGINX ingress controller using helm. 
+
+```bash
+# Add the ingress-nginx repository
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+
+# Use Helm to deploy an NGINX ingress controller
+helm install nginx-ingress ingress-nginx/ingress-nginx --namespace kube-system -f internal-ingress.yaml
+
+# Check that all pods are up and running. 
+kubectl -n kube-system get po -l app.kubernetes.io/name=ingress-nginx
+NAME                                                     READY   STATUS    RESTARTS   AGE
+nginx-ingress-ingress-nginx-controller-9f4f5dc77-hnvlv   1/1     Running   0          143m
+nginx-ingress-ingress-nginx-controller-9f4f5dc77-tvdhk   1/1     Running   0          143m
+
+# Check load balancer external ip
+kubectl --namespace kube-system get services -o wide -w nginx-ingress-ingress-nginx-controller
+NAME                                     TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)                      AGE    SELECTOR
+nginx-ingress-ingress-nginx-controller   LoadBalancer   10.0.151.123   10.1.0.66     80:31235/TCP,443:32741/TCP   143m   app.kubernetes.io/component=controller,app.kubernetes.io/instance=nginx-ingress,app.kubernetes.io/name=ingress-nginx
+```
+
+It may take a few minutes for the LoadBalancer IP to be available. Initially, `EXTERNAL-IP` column will contain `<pending>`, but when Azure Load Balancer will be cerated and IP address will be assigned, `EXTERNAL-IP` will contain private IP address, in my case it was `10.1.0.66`. 
 
 No ingress rules have been created yet, so the NGINX ingress controller's default 404 page is displayed if you browse to the internal IP address. Ingress rules are configured in the following tasks.
 
@@ -22,8 +97,8 @@ No ingress rules have been created yet, so the NGINX ingress controller's defaul
 # Start curl pod with interactive shell
 kubectl run curl -i --tty --rm --restart=Never --image=radial/busyboxplus:curl -- sh
 
-# Try to access our 
-[ root@curl:/ ]$ curl http://10.11.0.146
+# Try to access our ingress IP. Note that you have to use your IP address
+[ root@curl:/ ]$ curl http://10.1.0.66
 <html>
 <head><title>404 Not Found</title></head>
 <body>
@@ -36,180 +111,77 @@ kubectl run curl -i --tty --rm --restart=Never --image=radial/busyboxplus:curl -
 
 To see the ingress controller in action, let's deploy two applications in our AKS cluster. 
 
-## Task #2 - deploy guinea-pig-lab11-task1 application 
 
-Create `guinea-pig-lab11-task1-deployment.yaml` file with the following k8s resources:
+## Task #2 - deploy guinea-pig application  
+
+Create `lab-11-task2-deployment.yaml` manifest file with the following k8s resources:
 
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: guinea-pig-lab11-task1
+  name: lab-11-task2
   labels:
-    app: guinea-pig-lab11-task1
+    app: lab-11-task2
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
-      app: guinea-pig-lab11-task1
+      app: lab-11-task2
   template:
     metadata:
       labels:
-        app: guinea-pig-lab11-task1
+        app: lab-11-task2
     spec:
       containers:
       - name: api
         image: eratewsznjnxaunsoy42acr.azurecr.io/guinea-pig:v1
         imagePullPolicy: IfNotPresent
         resources: {}
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 80
-          initialDelaySeconds: 3
-          periodSeconds: 3    
-        readinessProbe:
-          httpGet:
-            path: /readiness
-            port: 80
-          initialDelaySeconds: 3
-          periodSeconds: 3
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: guinea-pig-lab11-task1-service
+  name: lab-11-task2-service
   labels:
-    app: guinea-pig-lab11-task1
+    app: lab-11-task2
 spec:
   ports:
   - port: 8081
     protocol: TCP
     targetPort: 80
   selector:
-    app: guinea-pig-lab11-task1
+    app: lab-11-task2
   type: ClusterIP
 ```
 
 ```bash
-# Deploy guinea-pig-lab11-task1 application
-kubectl apply -f guinea-pig-lab11-task1-deployment.yaml
-deployment.apps/guinea-pig-lab11-task1 created
-service/guinea-pig-lab11-task1-service created
+# Deploy lab-11-task2 application
+kubectl apply -f lab-11-task2-deployment.yaml
+deployment.apps/lab-11-task2 created
+service/lab-11-task2-service created
 ```
-As you can see, here we deployed two replicas of guinea-pig-lab11-task1 and service exposed at port `8081`. Now, let's test it:
+
+As you can see, here we deployed two replicas of lab-11-task2 and service exposed at port `8081`. Now, let's test it:
 
 ```bash
 # Start test pod with interactive shell
 kubectl run curl -i --tty --rm --restart=Never --image=radial/busyboxplus:curl -- sh
 
 # Test api
-[ root@curl:/ ]$ curl http://guinea-pig-lab11-task1-service:8081/api
+[ root@curl:/ ]$ curl http://lab-11-task2-service:8081/api
 [api] - OK.
 [ root@curl:/ ]$ exit
 ```
+## Task #3 - implement an ingress route
 
-## Task #3 - deploy api-b applications 
-
-Create `api-b-deployment.yaml` file with the following k8s resources:
-
-```yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: api-b-appsettings
-data:
-  appsettings.json: |-
-    {
-      "ApiAServiceUrl": "http://guinea-pig-lab11-task1-service:8081/api"      
-    }
----    
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: api-b
-  labels:
-    app: api-b
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: api-b
-  template:
-    metadata:
-      labels:
-        app: api-b
-        aadpodidbinding: api-b
-    spec:
-      containers:
-      - name: api
-        image: iacws2<YOUR-NAME>acr.azurecr.io/apib:v1
-        imagePullPolicy: IfNotPresent
-        resources: {}
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 80
-          initialDelaySeconds: 3
-          periodSeconds: 3    
-        readinessProbe:
-          httpGet:
-            path: /readiness
-            port: 80
-          initialDelaySeconds: 3
-          periodSeconds: 3
-        volumeMounts:
-        - name: appsettings
-          mountPath: /app/config          
-      volumes:
-      - name: appsettings
-        configMap:
-          name: api-b-appsettings
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: api-b-service
-  labels:
-    app: api-b
-spec:
-  ports:
-  - port: 8081
-    protocol: TCP
-    targetPort: 80
-  selector:
-    app: api-b
-  type: ClusterIP
-```
-
-```bash
-# Deploy guinea-pig-lab11-task1 application
-kubectl apply -f api-b-deployment.yaml
-configmap/api-b-appsettings created
-deployment.apps/api-b created
-service/api-b-service created
-```
-As you can see, here we've deployed `api-b-appsettings` configmap with configuration pointing to the `guinea-pig-lab11-task1-service` service endpoint, one replica of `api-b` and `api-b-service` service exposed at port `8081`. Now, let's test it:
-
-```bash
-# Start test pod with interactive shell
-kubectl run curl -i --tty --rm --restart=Never --image=radial/busyboxplus:curl -- sh
-
-# Test api
-[ root@curl:/ ]$ curl http://api-b-service:8081/api
-[api-b] - OK.
-[ root@curl:/ ]$ exit
-```
-
-## Task #4 - implement an ingress route
-
-Create `api-b-ingress.yaml` file with the following ingress manifest:
+Create `lab-11-task3-ingress.yaml` file with the following ingress manifest:
 
 ```yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: api-b-ingress
+  name: lab-11-task3-ingress
   namespace: default
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
@@ -224,15 +196,15 @@ spec:
         pathType: Prefix      
         backend:
           service:
-            name: api-b-service
+            name: lab-11-task2-service
             port:
               number: 8081
 ```
 
 ```bash
-# Deploy api-b-ingress ingress  
-kubectl apply -f api-b-ingress.yaml 
-ingress.networking.k8s.io/api-b-ingress created
+# Deploy lab-11-task3-ingress ingress  
+kubectl apply -f lab-11-task3-ingress.yaml 
+ingress.networking.k8s.io/lab-11-task3-ingress created
 ```
 It may take some time before private IP address is assigned to the ingress, you can watch the status by running the following command:
 
@@ -240,42 +212,93 @@ It may take some time before private IP address is assigned to the ingress, you 
 # Get all ingresses
 kubectl get ingress -w
 NAME              CLASS   HOSTS   ADDRESS   PORTS   AGE
-api-b-ingress   nginx   *                 80      17s
-api-b-ingress   nginx   *       10.11.0.146   80      51s
+NAME                   CLASS   HOSTS   ADDRESS   PORTS   AGE
+lab-11-task3-ingress   nginx   *                 80      0s
+lab-11-task3-ingress   nginx   *       10.1.0.66   80      28s
 
-# Get api-b-ingress ingresses
-kubectl get ingress api-b-ingress
+# Get lab-11-task3-ingress ingresses
+kubectl get ingress lab-11-task3-ingress
 
-# Describe api-b-ingress ingress
-kubectl describe ing api-b-ingress
+# Describe lab-11-task3-ingress ingress
+kubectl describe ing lab-11-task3-ingress
 ```
 
 Now, let's test the ingress controller:
 
 ```bash
 # Get ingress IP address
-kubectl get ingress api-b-ingress
+kubectl get ingress lab-11-task3-ingress
 NAME            CLASS   HOSTS   ADDRESS       PORTS   AGE
-api-b-ingress   nginx   *       10.11.0.146   80      11m
+lab-11-task3-ingress   nginx   *       10.1.0.66   80      11m
 
 # Start test pod with interactive shell
 kubectl run curl -i --tty --rm --restart=Never --image=radial/busyboxplus:curl -- sh
 
 # Test api endpoint
-[ root@curl:/ ]$ curl http://10.11.0.146/api
+[ root@curl:/ ]$ curl http://10.1.0.66/api
 [api-b] - OK
 [ root@curl:/ ]$ exit
 ```
 
-## Task #5 - implement multiple ingress routes
+## Task #4 - implement multiple ingress routes
 
-Create `guinea-pig-lab11-task1-b-ingress.yaml` file with the following ingress manifest:
+First, let's deploy another version of `guinea-pig` application with service. 
+
+Create `lab-11-task4-deployment.yaml` manifest file with the following k8s resources:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lab-11-task4
+  labels:
+    app: lab-11-task4
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lab-11-task4
+  template:
+    metadata:
+      labels:
+        app: lab-11-task4
+    spec:
+      containers:
+      - name: api
+        image: eratewsznjnxaunsoy42acr.azurecr.io/guinea-pig:v1
+        imagePullPolicy: IfNotPresent
+        resources: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lab-11-task4-service
+  labels:
+    app: lab-11-task4
+spec:
+  ports:
+  - port: 8081
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: lab-11-task4
+  type: ClusterIP
+```
+
+```bash
+# Deploy lab-11-task4 application
+kubectl apply -f lab-11-task4-deployment.yaml
+deployment.apps/lab-11-task4 created
+service/lab-11-task4-service created
+```
+
+Now, create `lab-11-task4-ingress.yaml` file with the following ingress manifest:
 
 ```yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: guinea-pig-lab11-task1-b-ingress
+  name: lab-11-task4-ingress
   namespace: default
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
@@ -290,32 +313,32 @@ spec:
         pathType: Prefix      
         backend:
           service:
-            name: guinea-pig-lab11-task1-service
+            name: lab-11-task2-service
             port:
               number: 8081
       - path: /apib(/|$)(.*)
         pathType: Prefix      
         backend:
           service:
-            name: api-b-service
+            name: lab-11-task4-service
             port:
               number: 8081
 ```
 
 In this ingress definition, any characters captured by (.*) will be assigned to the placeholder `$2`, which is then used as a parameter in the [rewrite-target](https://kubernetes.github.io/ingress-nginx/examples/rewrite/) annotation. The ingress definition above will result in the following rewrites:
 
-* `10.11.0.146/apia` rewrites to `10.11.0.146/`
-* `10.11.0.146/apia/` rewrites to `10.11.0.146/`
-* `10.11.0.146/apia/api` rewrites to `10.11.0.146/api`
-* `10.11.0.146/apib/api` rewrites to `10.11.0.146/api`
+* `10.1.0.66/apia` rewrites to `10.1.0.66/`
+* `10.1.0.66/apia/` rewrites to `10.1.0.66/`
+* `10.1.0.66/apia/api` rewrites to `10.1.0.66/api`
+* `10.1.0.66/apib/api` rewrites to `10.1.0.66/api`
 
 ```bash
-# Deploy guinea-pig-lab11-task1-b-ingress ingress  
-kubectl apply -f guinea-pig-lab11-task1-b-ingress.yaml 
-ingress.networking.k8s.io/guinea-pig-lab11-task1-b-ingress created
+# Deploy lab-11-task3-ingress ingress  
+kubectl apply -f lab-11-task4-ingress.yaml 
+ingress.networking.k8s.io/lab-11-task4-ingress created
 
-# Describe api-b-ingress ingress and check the Rules section
-kubectl describe ingress guinea-pig-lab11-task1-b-ingress
+# Describe lab-11-task3-ingress ingress and check the Rules section
+kubectl describe ingress lab-11-task4-ingress
 ```
 
 As you can see in the `Rules`, there are two path pointing to corresponding services
@@ -325,31 +348,33 @@ Rules:
   Host        Path  Backends
   ----        ----  --------
   *
-              /apia(/|$)(.*)   guinea-pig-lab11-task1-service:8081 (10.11.0.118:80,10.11.0.142:80)
-              /apib(/|$)(.*)   api-b-service:8081 (10.11.0.119:80)
+              /apia(/|$)(.*)   lab-11-task2-service:8081 (10.1.0.41:80)
+              /apib(/|$)(.*)   lab-11-task4-service:8081 (10.1.0.53:80)
 ```
 
 Now, let's test new ingress controller:
 
 ```bash
 # Get ingress IP address, but as you already noticed, all ingress will have the same private IP used by NGINX ingress controller
-kubectl get ingress guinea-pig-lab11-task1-b-ingress
-NAME            CLASS   HOSTS   ADDRESS       PORTS   AGE
-api-b-ingress   nginx   *       10.11.0.146   80      11m
+kubectl get ingress lab-11-task4-ingress
+NAME                   CLASS   HOSTS   ADDRESS     PORTS   AGE
+lab-11-task4-ingress   nginx   *       10.1.0.66   80      4m26s
 
 # Start test pod with interactive shell
 kubectl run curl -i --tty --rm --restart=Never --image=radial/busyboxplus:curl -- sh
 
 # Test apia endpoint
-[ root@curl:/ ]$ curl http://10.11.0.146/apia/api
-[guinea-pig-lab11-task1] - OK
+[ root@curl:/ ]$ curl http://10.1.0.66/apia/api
+[api] - OK.
 
 # Test apia endpoint
-[ root@curl:/ ]$ curl http://10.11.0.146/apib/api
-[api-b] - OK
+[ root@curl:/ ]$ curl http://10.1.0.66/apib/api
+[api] - OK.
 
 [ root@curl:/ ]$ exit
 ```
+
+If you monitor logs from `lab-11-task2` and `lab-11-task4` pods, you will see that traffic from `10.1.0.66/apia/api` endpoint is routed to the `lab-11-task2` pod via  `lab-11-task2-service` and traffic from `10.1.0.66/apib/api` endpoint is routed to the `lab-11-task4` pod via `lab-11-task4-service` service.
 
 ## Useful links
 

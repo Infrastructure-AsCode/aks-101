@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lab-11-task2
+  labels:
+    app: lab-11-task2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lab-11-task2
+  template:
+    metadata:
+      labels:
+        app: lab-11-task2
+    spec:
+      containers:
+      - name: api
+        image: eratewsznjnxaunsoy42acr.azurecr.io/guinea-pig:v1
+        imagePullPolicy: IfNotPresent
+        resources: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lab-11-task2-service
+  labels:
+    app: lab-11-task2
+spec:
+  ports:
+  - port: 8081
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: lab-11-task2
+  type: ClusterIP

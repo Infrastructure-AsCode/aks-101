@@ -1,0 +1,19 @@
+controller:
+  replicaCount: 2
+  service:
+    annotations:
+      service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+  tolerations:
+    - key: "CriticalAddonsOnly"
+      operator: "Equal"
+      value: "true"
+      effect: "NoSchedule"
+  nodeSelector: 
+    kubernetes.io/os: linux
+  admissionWebhooks:
+    patch:
+      nodeSelector: 
+        kubernetes.io/os: linux    
+defaultBackend:
+  nodeSelector: 
+    kubernetes.io/os: linux

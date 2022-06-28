@@ -401,4 +401,4 @@ As you can see, app reads connection string deployed as a secret.
 
 ## Next: configuring ingress with nginx
 
-[Go to lab-11](../lab-09/readme.md)
+[Go to lab-11](../lab-11/readme.md)
