@@ -124,7 +124,7 @@ Deploy it
 
 ```bash
 # Deploy lab-07-almost-healthy.yaml
-kubectl apply -f .\lab-07-almost-healthy.yaml
+kubectl apply -f lab-07-almost-healthy.yaml
 pod/lab-07-almost-healthy created
 ```
 
