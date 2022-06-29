@@ -24,7 +24,7 @@ If you completed `lab-08` and deleted Deployment you created during this lab, re
 
 ```bash
 # Deploy lab-08-task3-deployment.yaml Deployment
-kubectl apply -f .\lab-08-task3-deployment.yaml
+kubectl apply -f lab-08-task3-deployment.yaml
 
 # Check that rollout status is "successfully rolled out"
 kubectl rollout status deployment/lab-08-task3

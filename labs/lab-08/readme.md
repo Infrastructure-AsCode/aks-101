@@ -90,7 +90,7 @@ Now let's deploy it
 
 ```bash
 # Deploy lab-08-task3-deployment.yaml
-kubectl apply -f .\lab-08-task3-deployment.yaml
+kubectl apply -f lab-08-task3-deployment.yaml
 
 # kubectl get deployments
 kubectl get deployments lab-08-task3
@@ -142,7 +142,7 @@ You can also update Deployment by editing yaml file. Open `lab-08-task3-deployme
 
 ```bash
 # Deploy updated version of lab-08-task3-deployment.yaml Deployment
-kubectl apply -f .\lab-08-task3-deployment.yaml
+kubectl apply -f lab-08-task3-deployment.yaml
 
 # To see the Deployment rollout status, run
 kubectl rollout status deployment/lab-08-task3

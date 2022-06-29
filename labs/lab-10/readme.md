@@ -99,7 +99,7 @@ Deploy config map
 
 ```bash
 # Deploying config map from `lab-10-logging-appsettings.yaml` file
-kubectl apply -f .\lab-10-logging-appsettings.yaml
+kubectl apply -f lab-10-logging-appsettings.yaml
 
 # Get a list of config map instances
 kubectl get configmap
@@ -169,7 +169,7 @@ Now, let's deploy our Deployment
 
 ```bash
 # Deploy lab-10-task1-deployment.yaml 
-kubectl apply -f .\lab-10-task1-deployment.yaml
+kubectl apply -f lab-10-task1-deployment.yaml
 
 # Wait until deployment is successfully rolled out
 
@@ -319,7 +319,7 @@ Now, let's deploy `lab-10-task2-deployment.yaml` Deployment
 
 ```bash
 # Deploy lab-10-task2-deployment.yaml
-kubectl.exe apply -f .\lab-10-task2-deployment.yaml
+kubectl.exe apply -f lab-10-task2-deployment.yaml
 deployment.apps/lab-10-task2 created
 
 # Wait until deployment is successfully rolled out
