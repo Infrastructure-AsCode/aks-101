@@ -142,7 +142,7 @@ Deploy it using `kubectl apply` command
 
 ```bash
 # Deploy lab-09-guinea-pig-service-2.yaml service
-kubectl apply -f .\lab-09-guinea-pig-service-2.yaml
+kubectl apply -f lab-09-guinea-pig-service-2.yaml
 service/guinea-pig-service-2 created
 
 # Get service 
@@ -167,7 +167,7 @@ Now let's change Service port to `8081`. Edit `lab-09-guinea-pig-service-2.yaml`
 
 ```bash
 # Deploy lab-09-guinea-pig-service-2.yaml service
-kubectl apply -f .\lab-09-guinea-pig-service-2.yaml
+kubectl apply -f lab-09-guinea-pig-service-2.yaml
 service/guinea-pig-service-2 configured
 
 # Get service and check that PORT(S) field is now showing 8081/TCP 
@@ -198,7 +198,7 @@ kubectl delete svc guinea-pig-service-1
 service "guinea-pig-service-1" deleted
 
 # Delete guinea-pig-service-2 Service using yaml definition file
-kubectl delete -f .\lab-09-guinea-pig-service-2.yaml
+kubectl delete -f lab-09-guinea-pig-service-2.yaml
 service "guinea-pig-service-2" deleted
 ```
 
