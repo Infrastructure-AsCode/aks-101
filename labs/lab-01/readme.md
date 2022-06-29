@@ -12,8 +12,8 @@ To start learning and experimenting with Kubernetes concepts, commands and opera
 
 ## Goals
 
-* Install `kubectl` command 
 * Connect to AKS cluster
+* Install `kubectl` command 
 * Use `kubectl` and get list of nodes and namespaces
 
 ## Task #1 - connect to the cluster
@@ -48,7 +48,7 @@ If you are running on Mac or WSL, you may need to use `sudo`, in this case run
 sudo az aks install-cli
 ```
 
-If you are using PowerShell, you need to update system PATH environment variable and add new item for `%userprofile%\.azure-kubectl`. 
+If you are on Windows and using PowerShell, you need to update system PATH environment variable and add new item for `%userprofile%\.azure-kubectl`. 
 
 ![env](images/env.png)
 
@@ -61,7 +61,6 @@ If you are using PowerShell, you need to update system PATH environment variable
 You need to reset your PowerShell (and cmd) session(s) for change to take effect.
 
 For a complete list of kubectl operations, see [Overview of kubectl](https://kubernetes.io/docs/reference/kubectl/overview/).
-
 
 ## Task #3 - verify the connection to your cluster
 

@@ -9,10 +9,10 @@ This workshop covers the basics of using Kubernetes and here is the agenda:
 ## Agenda
 
  * Welcome and intro
- * Slides: Kubernetes (and AKS) introduction
  * [Lab-01](labs/lab-01/readme.md): connecting to AKS cluster
- * Lab-02: setting up your shell (powershell and zsh/bash) for better AKS/kubectl experience 
+ * Slides: Kubernetes (and AKS) introduction
  * Slides: introduce "guinea pig" app
+ * [Lab-02](labs/lab-02/readme.md): setting up your shell (powershell and zsh/bash) for better AKS/kubectl experience 
  * [Lab-03](labs/lab-03/readme.md): Containerizing your application
  * Slides: Pods, Namespaces
  * [Lab-04](labs/lab-04/readme.md): Creating, managing and testing pods

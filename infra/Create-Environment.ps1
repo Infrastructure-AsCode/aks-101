@@ -16,7 +16,7 @@ param (
 Write-Host "Provisioning shared resources"
 $sharedAcrName = (az deployment sub create --location westeurope --template-file ./deploymentShared.bicep  --parameters workloadName=$workloadName -n deployment-shared --query properties.outputs.acrName.value)
 
-for ($i = 3; $i -le $InstanceCount; $i++) {
+for ($i = 1; $i -le $InstanceCount; $i++) {
     $userName = "$workloadName-user$i"
     $principalName = "$userName@iac-labs.com"
 
