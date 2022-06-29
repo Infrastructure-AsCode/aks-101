@@ -319,7 +319,7 @@ Now, let's deploy `lab-10-task2-deployment.yaml` Deployment
 
 ```bash
 # Deploy lab-10-task2-deployment.yaml
-kubectl.exe apply -f lab-10-task2-deployment.yaml
+kubectl apply -f lab-10-task2-deployment.yaml
 deployment.apps/lab-10-task2 created
 
 # Wait until deployment is successfully rolled out
